@@ -1,28 +1,14 @@
 import os, json, glob
 from PIL import Image
+from Material import Material
 
-def get_material_ls():
+def get_material_ls(config_setting):
     material_ls = []
     for category in os.listdir('objects'):
         fbx_dir = os.path.abspath(r'objects/{}/*.fbx'.format(category))
         blend_dir = os.path.abspath(r'objects/{}/*.blend'.format(category))
         for obj_path in glob.glob(fbx_dir)+glob.glob(blend_dir):
-            print(obj_path)
-            material = {
-                'category': category, 
-                'name': os.path.basename(obj_path).split('.')[0],
-                'type': os.path.basename(obj_path).split('.')[-1],
-                'path': obj_path,
-                'args': {
-                    'location_x': 0,
-                    'location_y': 0,
-                    'location_z': 0,
-                    'rotation_x': 0,
-                    'rotation_y': 0,
-                    'rotation_z': 0
-                }
-            }
-            material_ls.append(material)
+            material_ls.append(Material(config_setting, category, obj_path))
     return material_ls
 
 def write_file(filename, content):

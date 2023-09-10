@@ -13,7 +13,6 @@ class BlenderEnv:
                 bpy.data.collections.remove(collection)
         bpy.ops.outliner.orphans_purge(do_recursive=True)
 
-
     def set_env(self):
         bpy.context.scene.render.resolution_x = self.config_setting["blender_env"]["resolution"][0] #1280
         bpy.context.scene.render.resolution_y = self.config_setting["blender_env"]["resolution"][1] #720
@@ -23,6 +22,12 @@ class BlenderEnv:
         bpy.context.scene.cycles.device = "GPU"
         bpy.context.preferences.addons["cycles"].preferences.compute_device_type = "CUDA"
         bpy.context.preferences.addons["cycles"].preferences.get_devices()
+
+    def create_collection(self):
+        for name in ['fbx_col', 'blend_col']:
+            collection = bpy.data.collections.new(name)
+            bpy.context.scene.collection.children.link(collection)
+        return
 
     def init_node(self):
         bpy.context.scene.render.film_transparent = True
