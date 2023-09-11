@@ -6,7 +6,7 @@ class BlenderEnv:
 
     def remove_all_obj(self):
         for obj in bpy.data.objects:
-            if obj.name not in ['Camera', 'Light']:
+            if obj.name not in ['Camera', 'Light', 'Sun']:
                 bpy.data.objects.remove(obj)
         for collection in bpy.data.collections:
             if collection.name not in ['Collection', 'fbx_col', 'blend_col']:
@@ -17,7 +17,7 @@ class BlenderEnv:
         bpy.context.scene.render.resolution_x = self.config_setting["blender_env"]["resolution"][0] #1280
         bpy.context.scene.render.resolution_y = self.config_setting["blender_env"]["resolution"][1] #720
         bpy.context.scene.render.resolution_percentage = 100
-        bpy.context.scene.view_layers["ViewLayer"].use_pass_object_index = True
+        bpy.context.scene.view_layers["View Layer"].use_pass_object_index = True
         bpy.context.scene.render.engine = 'CYCLES'
         bpy.context.scene.cycles.device = "GPU"
         bpy.context.preferences.addons["cycles"].preferences.compute_device_type = "CUDA"
