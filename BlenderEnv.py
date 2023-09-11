@@ -41,30 +41,6 @@ class BlenderEnv:
 
         image_node = tree.nodes.new(type='CompositorNodeImage')
         image_node.image = bpy.data.images.load(os.path.abspath(self.config_setting["file_env"]["bg_path"]))
-        # image_scale_node = tree.nodes.new(type='CompositorNodeScale')
-        # image_scale_node.space = 'RENDER_SIZE'
-
         render_node = tree.nodes.new(type='CompositorNodeRLayers')
-        # render_scale_node = tree.nodes.new(type='CompositorNodeScale')
-        # render_scale_node.space = 'RENDER_SIZE'
-
-        # alpha_over_node = tree.nodes.new(type='CompositorNodeAlphaOver')
         composite_node = tree.nodes.new(type='CompositorNodeComposite')
-
-        # if self.config_setting["mode_config"]["with_bg"]:
-        #     links.new(image_node.outputs[0], image_scale_node.inputs[0])
-        #     links.new(render_node.outputs[0], render_scale_node.inputs[0])
-        #     links.new(image_scale_node.outputs[0], alpha_over_node.inputs[1])
-        #     links.new(render_scale_node.outputs[0], alpha_over_node.inputs[2])
-        #     if self.config_setting["mode_config"]["with_color"]:
-        #         # with background and color
-        #         links.new(alpha_over_node.outputs[0], composite_node.inputs[0])
-        #     else:
-        #         # with background and no color
-        #         color_ramp_node = tree.nodes.new(type='CompositorNodeValToRGB')
-        #         links.new(alpha_over_node.outputs[0], color_ramp_node.inputs[0])
-        #         links.new(color_ramp_node.outputs[0], composite_node.inputs[0])
-        # else:
-        #     # no background
-        #     links.new(render_node.outputs[0], composite_node.inputs[0])
         links.new(render_node.outputs[0], composite_node.inputs[0])
