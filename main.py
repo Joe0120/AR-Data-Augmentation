@@ -22,11 +22,11 @@ if __name__ == '__main__':
 
     bbox = BBOX(config_setting)
 
-    display, event = Display(), threading.Event()
+    display, event = Display(frame_WH=config_setting["blender_env"]["resolution"]), threading.Event()
     display_thread = threading.Thread(target=display.start_mjpeg_server, args=(event,))
     display_thread.daemon = True
     display_thread.start()
-    display.generate_frame('waiting...')
+    display.generate_frame(text='waiting...')
 
     material_ls: [Material] = utils.get_material_ls(config_setting)
     for material in material_ls:
@@ -56,6 +56,9 @@ if __name__ == '__main__':
             if (not config_setting["mode_config"]["with_color"]) and obj_exist_in_img:
                 utils.convert_to_bw(material.save_filename)
 
-            display.generate_frame(material.save_filename)
+            if obj_exist_in_img:
+                if config_setting["mode_config"]["mode"]=="2D":
+                    display.generate_frame(img_path=material.save_filename, bbox=["2D", bbox_2D])
         blender_env.remove_all_obj()
+    display.generate_frame(text="Done !")
     event.set()
