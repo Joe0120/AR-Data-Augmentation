@@ -17,7 +17,10 @@ class BlenderEnv:
         bpy.context.scene.render.resolution_x = self.config_setting["blender_env"]["resolution"][0] #1280
         bpy.context.scene.render.resolution_y = self.config_setting["blender_env"]["resolution"][1] #720
         bpy.context.scene.render.resolution_percentage = 100
-        bpy.context.scene.view_layers["View Layer"].use_pass_object_index = True
+        if self.config_setting["file_env"]["blender_file"]:
+            bpy.context.scene.view_layers["View Layer"].use_pass_object_index = True
+        else:
+            bpy.context.scene.view_layers["ViewLayer"].use_pass_object_index = True
         bpy.context.scene.render.engine = 'CYCLES'
         bpy.context.scene.cycles.device = "GPU"
         bpy.context.preferences.addons["cycles"].preferences.compute_device_type = "CUDA"
