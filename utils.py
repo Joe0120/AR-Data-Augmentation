@@ -42,3 +42,8 @@ def convert_to_bw(filename):
     bw_image = color_image.convert("LA")
     bw_image.save(f'{filename}.png')
     return
+
+def saveToJson(ls, filename):
+    json_object = json.dumps(ls, indent=4, ensure_ascii=False)
+    with open(filename, "w", encoding="utf-8") as outfile:
+        outfile.write(json_object)

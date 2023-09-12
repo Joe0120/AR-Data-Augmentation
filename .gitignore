@@ -7,10 +7,10 @@
 *.rar
 *.zip
 conver_format/result/
-txt/
 output/
 person/
 backgrounds/
+test/
 __pycache__
 .DS_Store
 *pyenv*
