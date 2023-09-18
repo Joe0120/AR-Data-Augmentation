@@ -22,9 +22,8 @@ if __name__ == '__main__':
 
     bbox = BBOX(config_setting)
     if config_setting["mode_config"]["is_fisheye"]:
-        print(f'{config_setting["file_env"]["save_file"]}/fisheye_.png')
-        bpy.context.scene.render.filepath = os.path.abspath(f'{config_setting["file_env"]["save_file"]}/fisheye_.png')
-        bpy.ops.render.render(write_still=True)
+        print(os.path.abspath(f'{config_setting["file_env"]["save_file"]}/fisheye_.png'))
+        blender_env.render(os.path.abspath(f'{config_setting["file_env"]["save_file"]}/fisheye_.png'))
 
     display, event = Display(frame_WH=config_setting["blender_env"]["resolution"]), threading.Event()
     display_thread = threading.Thread(target=display.start_mjpeg_server, args=(event,))
@@ -42,7 +41,11 @@ if __name__ == '__main__':
         for param_set in param_combinations:
             param_dict = {param_names[i]: param_set[i] for i in range(len(param_names))}
             print(param_dict)
-            material.render_material(param_dict)
+            material.set_args(param_dict)
+            material.setting_place()
+            material.name_save_filename()
+            blender_env.render(material.save_filename)
+
             obj_exist_in_img = True
 
             if config_setting["mode_config"]["is_fisheye"] and obj_exist_in_img:

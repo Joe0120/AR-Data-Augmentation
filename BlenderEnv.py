@@ -47,3 +47,7 @@ class BlenderEnv:
         render_node = tree.nodes.new(type='CompositorNodeRLayers')
         composite_node = tree.nodes.new(type='CompositorNodeComposite')
         links.new(render_node.outputs[0], composite_node.inputs[0])
+
+    def render(self, file_path):
+        bpy.context.scene.render.filepath = file_path
+        bpy.ops.render.render(write_still=True)

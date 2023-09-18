@@ -48,7 +48,7 @@ class Material:
     def set_args(self, args):
         self.args = args
 
-    def set_place(self):
+    def setting_place(self):
         self.obj.location.x = self.args['location_x']
         self.obj.location.y = self.args['location_y']
         self.obj.location.z = self.args['location_z']
@@ -64,11 +64,3 @@ class Material:
 
         save_filename = os.path.abspath(self.config_setting["file_env"]["save_file"]) +'/'+ output_filename
         self.save_filename = save_filename
-    
-    def render_material(self, param_dict):
-        self.set_args(param_dict)
-        self.set_place()
-        self.name_save_filename()
-        bpy.context.scene.render.filepath = self.save_filename
-        bpy.ops.render.render(write_still=True)
-        return
