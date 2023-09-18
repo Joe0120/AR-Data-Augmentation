@@ -15,7 +15,6 @@ __pycache__
 .DS_Store
 *pyenv*
 .python-version
-*.json
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
