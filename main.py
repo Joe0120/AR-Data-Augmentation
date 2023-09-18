@@ -1,4 +1,4 @@
-import bpy, json, sys
+import bpy, json, sys, os
 from itertools import product
 import threading
 sys.path.insert(0,r'.')
@@ -21,6 +21,10 @@ if __name__ == '__main__':
     Camera(config_setting).set_camera()
 
     bbox = BBOX(config_setting)
+    if config_setting["mode_config"]["is_fisheye"]:
+        print(f'{config_setting["file_env"]["save_file"]}/fisheye_.png')
+        bpy.context.scene.render.filepath = os.path.abspath(f'{config_setting["file_env"]["save_file"]}/fisheye_.png')
+        bpy.ops.render.render(write_still=True)
 
     display, event = Display(frame_WH=config_setting["blender_env"]["resolution"]), threading.Event()
     display_thread = threading.Thread(target=display.start_mjpeg_server, args=(event,))
@@ -40,6 +44,10 @@ if __name__ == '__main__':
             print(param_dict)
             material.render_material(param_dict)
             obj_exist_in_img = True
+
+            if config_setting["mode_config"]["is_fisheye"] and obj_exist_in_img:
+                utils.fisheye_remove_edge(f'{config_setting["file_env"]["save_file"]}/fisheye_.png', material.save_filename)
+
             if config_setting["mode_config"]["mode"]=="2D":
                 bbox_2D = bbox.get_bbox_2D(material.save_filename)
                 if bbox_2D:
