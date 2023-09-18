@@ -10,18 +10,17 @@ class BBOX:
         self.config_setting = config_setting
     
     def get_bbox_2D(self, filename):
-        segmentation_mask = cv2.imread(filename+'.png')
-        segmentation_mask = cv2.cvtColor(segmentation_mask,cv2.COLOR_BGR2GRAY)
+        segmentation_mask = cv2.imread(filename+'.png', cv2.IMREAD_UNCHANGED)
+        non_zero_pixels = np.argwhere(segmentation_mask[:, :, 3] > 0)
+        if not non_zero_pixels.any(): return None
         
-        if(np.sum(segmentation_mask) == 0): return None
-
-        rows, cols = np.where(segmentation_mask != 0)            
-        x_min, x_max = np.min(cols), np.max(cols) 
-        y_min, y_max = np.min(rows), np.max(rows)
-        width, length = x_max-x_min, y_max-y_min
-        if (width < self.config_setting["mode_config"]["smallest_obj_size"][0]) or (length < self.config_setting["mode_config"]["smallest_obj_size"][1]): 
+        left_top = non_zero_pixels.min(axis=0)
+        right_bottom = non_zero_pixels.max(axis=0)
+        width = right_bottom[0] - left_top[0]
+        height = right_bottom[1] - left_top[1]
+        if (width < self.config_setting["mode_config"]["smallest_obj_size"][0]) or (height < self.config_setting["mode_config"]["smallest_obj_size"][1]): 
             return None
-        return [(x_min,y_min), (x_max,y_max)]
+        return [tuple(left_top[::-1]), tuple(right_bottom[::-1])]
     
     def get_bbox_3D(self):
         def np_matmul_coords(coords, matrix, space=None):

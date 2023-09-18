@@ -1,4 +1,5 @@
-import os, json, glob
+import os, json, glob, cv2
+import numpy as np
 from PIL import Image
 from Material import Material
 
@@ -42,3 +43,18 @@ def convert_to_bw(filename):
     bw_image = color_image.convert("LA")
     bw_image.save(f'{filename}.png')
     return
+
+def saveToJson(ls, filename):
+    json_object = json.dumps(ls, indent=4, ensure_ascii=False)
+    with open(filename, "w", encoding="utf-8") as outfile:
+        outfile.write(json_object)
+
+def fisheye_remove_edge(mask_filename, filename):
+    # 魚眼去掉黑邊
+    mask = np.array(cv2.resize(cv2.imread(mask_filename, cv2.IMREAD_UNCHANGED), [1280, 720]))
+    render_image = np.array(cv2.imread(filename+'.png', cv2.IMREAD_UNCHANGED))
+
+    alpha_mask = mask[:, :, 3] > 0
+    render_image[alpha_mask] = [0, 0, 0, 0]
+
+    cv2.imwrite(filename+'.png', render_image)
