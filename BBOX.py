@@ -4,6 +4,7 @@ import mathutils
 import numpy as np
 import itertools
 from mathutils import Vector
+import math
 
 class BBOX:
     def __init__(self, config_setting):
@@ -43,4 +44,24 @@ class BBOX:
         bbc = [i for i in itertools.product(*G)]
 
         return np.array(bbc)
+
+    def get_bbox3D_loc(self, bbc, material_info):
+        data = np.array(bbc)
+        print(np.round(data, 2))
+        center = np.mean(data, axis=0)
+        # closest_top = center + np.array([0, 0, material_info["height"]])
+        center[2] = np.max(data[:, 2])
+        # center[2] = 3.75 - 2*np.max(data[:, 2])
+        closest_top_rounded = np.round(center, 2)
+        print(closest_top_rounded)
+        return [-closest_top_rounded[1], closest_top_rounded[2], closest_top_rounded[0]]
     
+    def get_bev_alpha(self, material_args):
+        return math.atan2(material_args["location_x"], material_args["location_y"])
+
+    def get_bev_rotation_y(self, material_args):
+        z = [0, 45, 90, 135, 180, 225, 270, 315]
+        bev_rotation_y = [0, -0.785, -1.57, -2.355, 3.14, 2.355, 1.57, 0.785]
+        return bev_rotation_y[z.index(material_args["rotation_z"])]
+        return -(math.atan2(material_args["location_x"], material_args["location_y"]) + math.radians(material_args["rotation_z"]-101))
+        

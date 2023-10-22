@@ -56,11 +56,16 @@ class Material:
         self.obj.rotation_euler.y = math.radians(self.args['rotation_y'])
         self.obj.rotation_euler.z = math.radians(self.args['rotation_z'])
 
-    def name_save_filename(self):
-        output_filename = f"{self.category} {self.name} " + \
-                        f"{round(self.args['location_x'],2)} {round(self.args['location_y'],2)} {round(self.args['location_z'],2)} " + \
-                        f"{round(self.args['rotation_x'],2)} {round(self.args['rotation_y'],2)} {round(self.args['rotation_z'],2)} " + \
-                        f"{str(datetime.datetime.now().timestamp()).replace('.', '')}"
+    def name_save_filename(self, filename=None):
+        if filename:
+            save_filename = os.path.abspath(self.config_setting["file_env"]["save_file"]) +'/image_2/'+ filename
+            self.save_filename = save_filename
+            print(save_filename)
+        else:
+            output_filename = f"{self.category} {self.name} " + \
+                            f"{round(self.args['location_x'],2)} {round(self.args['location_y'],2)} {round(self.args['location_z'],2)} " + \
+                            f"{round(self.args['rotation_x'],2)} {round(self.args['rotation_y'],2)} {round(self.args['rotation_z'],2)} " + \
+                            f"{str(datetime.datetime.now().timestamp()).replace('.', '')}"
 
-        save_filename = os.path.abspath(self.config_setting["file_env"]["save_file"]) +'/'+ output_filename
-        self.save_filename = save_filename
+            save_filename = os.path.abspath(self.config_setting["file_env"]["save_file"]) +'/'+ output_filename
+            self.save_filename = save_filename
