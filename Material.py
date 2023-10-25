@@ -17,6 +17,7 @@ class Material:
             'rotation_z': 0
         }
         self.obj = None
+        self.dimension = [None, None, None]
         self.save_filename = None
 
     def load_obj(self):
@@ -25,6 +26,7 @@ class Material:
             obj = bpy.context.selected_objects[0]
             bpy.data.collections['fbx_col'].objects.link(obj)
             self.obj = bpy.data.objects[obj.name]
+            self.dimension = list(obj.dimensions)
 
         elif self.type=='blend' and self.config_setting["mode_config"]["mode"]=="2D":
             blendFile = self.path

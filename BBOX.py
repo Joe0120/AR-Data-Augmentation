@@ -45,13 +45,12 @@ class BBOX:
 
         return np.array(bbc)
 
-    def get_bbox3D_loc(self, bbc, material_info):
+    def get_bbox3D_loc(self, bbc):
         data = np.array(bbc)
         print(np.round(data, 2))
         center = np.mean(data, axis=0)
-        # closest_top = center + np.array([0, 0, material_info["height"]])
-        center[2] = np.max(data[:, 2])
-        # center[2] = 3.75 - 2*np.max(data[:, 2])
+        obj_height = np.max(data[:, 2])-np.min(data[:, 2])
+        center[2] = (obj_height/1.65) - (obj_height-2)/2
         closest_top_rounded = np.round(center, 2)
         print(closest_top_rounded)
         return [-closest_top_rounded[1], closest_top_rounded[2], closest_top_rounded[0]]

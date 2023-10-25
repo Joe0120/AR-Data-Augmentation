@@ -61,20 +61,14 @@ if __name__ == '__main__':
                     obj_exist_in_img = False
                     utils.delete_img(material.save_filename)
             elif config_setting["mode_config"]["mode"]=="3D":
-                if material.name == "car_1":
-                    material_info = {"length":5.13,"width":2.28,"height":1.99}
-                elif material.name == "car_2":
-                    material_info = {"length":4.26,"width":2.17,"height":1.76}
-                elif material.name == "car_3":
-                    material_info = {"length":5.78,"width":2.51,"height":1.78}
                 bbox_2D = bbox.get_bbox_2D(material.save_filename)
                 bbox_3D = bbox.get_bbox_3D()
                 if len(bbox_2D) and len(bbox_3D):
-                    bbox_3D_loc = bbox.get_bbox3D_loc(bbox_3D, material_info)
+                    bbox_3D_loc = bbox.get_bbox3D_loc(bbox_3D)
                     bev_alpha = bbox.get_bev_alpha(material.args)
                     bev_rotation_y = bbox.get_bev_rotation_y(material.args)
                     print(bev_alpha, bbox_2D, bbox_3D_loc, bev_rotation_y)
-                    utils.write_kitti_label(material.save_filename, bev_alpha, bbox_2D, material_info, bbox_3D_loc, bev_rotation_y)
+                    utils.write_kitti_label(material.save_filename, bev_alpha, bbox_2D, material.dimension, bbox_3D_loc, bev_rotation_y)
                     utils.write_kitti_calib(material.save_filename)
                 print("3D")
 
