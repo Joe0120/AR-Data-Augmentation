@@ -59,8 +59,6 @@ class BBOX:
         return math.atan2(material_args["location_x"], material_args["location_y"])
 
     def get_bev_rotation_y(self, material_args):
-        z = [0, 45, 90, 135, 180, 225, 270, 315]
-        bev_rotation_y = [0, -0.785, -1.57, -2.355, 3.14, 2.355, 1.57, 0.785]
-        return bev_rotation_y[z.index(material_args["rotation_z"])]
-        return -(math.atan2(material_args["location_x"], material_args["location_y"]) + math.radians(material_args["rotation_z"]-101))
+        radian_angle = math.radians(material_args)
+        return math.atan2(-math.sin(radian_angle), math.cos(radian_angle))
         
