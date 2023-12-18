@@ -21,7 +21,7 @@ cd AR-Augmentation-BBOX-Data-Generator
 ```
 
 ### 5. Place your files into the folder
-YOU CAN DOWNLOAD FILES FROM THIS [LINK](#)
+YOU CAN DOWNLOAD FILES FROM THIS [LINK](https://ntutcc-my.sharepoint.com/:f:/g/personal/111c52017_cc_ntut_edu_tw1/EhNkLiL2fctBsdAoX7XpKjgBuhF_ak6o5ZugSEAsJqERnw?e=9fNlQW)
 ```
 backgrounds/[YOUR_BACKGROUND_HERE].jpg
 blender/[YOUR_BLENDER_FILE_HERE].blend
