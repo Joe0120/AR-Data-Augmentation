@@ -118,3 +118,4 @@ AR-Augmentation-BBOX-Data-Generator
 ```cmd=
 python run.py
 ```
+u can view on http://127.0.0.1:8888 realtime
