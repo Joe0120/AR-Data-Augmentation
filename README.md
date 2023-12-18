@@ -1,26 +1,27 @@
 # AR-Augmentation
-## Installation steps
-### 1. Install Blender
+## Installation
+### Install Blender
 https://www.blender.org/download/
 
-### 2. Set blender to env PATH
+### Set blender to env PATH
 ```
 C:\Program Files\Blender Foundation\Blender 3.6\
 ```
 
-### 3. Install pip package into Blender python
+### Install pip package into Blender python
 ```cmd=
 cd C:\Program Files\Blender Foundation\Blender 3.6\3.6\python\bin
 python -m pip install blenderproc contourpy cycler fonttools h5py kiwisolver opencv-python packaging Pillow progressbar pyparsing python-dateutil PyYAML six
 ```
 
-### 4. Clone this repo
+### Clone this repo
 ```cmd=
 git clone https://github.com/Joe0120/AR-Augmentation-BBOX-Data-Generator.git
 cd AR-Augmentation-BBOX-Data-Generator
 ```
 
-### 5. Place your files into the folder
+## Usage
+### Place your files into the folder
 YOU CAN DOWNLOAD FILES FROM THIS [LINK](https://ntutcc-my.sharepoint.com/:f:/g/personal/111c52017_cc_ntut_edu_tw1/EhNkLiL2fctBsdAoX7XpKjgBuhF_ak6o5ZugSEAsJqERnw?e=9fNlQW)
 ```
 backgrounds/[YOUR_BACKGROUND_HERE].jpg
@@ -80,7 +81,7 @@ AR-Augmentation-BBOX-Data-Generator
 └───output
 ```
 
-### 6. Edit config_setting.json
+### Edit config_setting.json
 ```json=
 {
     "file_env": {
@@ -114,7 +115,7 @@ AR-Augmentation-BBOX-Data-Generator
     }
 }
 ```
-### 7. Run the program
+### Run the program
 ```cmd=
 python run.py
 ```
