@@ -1,5 +1,9 @@
 # AR-Augmentation
 ## Installation
+
+<details>
+<summary><b>Windows</b></summary>
+
 ### Install Blender
 https://www.blender.org/download/
 
@@ -13,6 +17,23 @@ C:\Program Files\Blender Foundation\Blender 3.6\
 cd C:\Program Files\Blender Foundation\Blender 3.6\3.6\python\bin
 python -m pip install blenderproc contourpy cycler fonttools h5py kiwisolver opencv-python packaging Pillow progressbar pyparsing python-dateutil PyYAML six
 ```
+</details>
+
+
+<details>
+<summary><b>Ubuntu</b></summary>
+
+### Install Blender
+```
+snap install blender --channel=3.6lts/stable --classic
+```
+
+### Install pip package into Blender python
+```cmd=
+cd /snap/blender/current/3.6/python/bin
+./python3.10 -m pip install blenderproc contourpy cycler fonttools h5py kiwisolver opencv-python packaging Pillow progressbar pyparsing python-dateutil PyYAML six
+```
+</details>
 
 ### Clone this repo
 ```cmd=
