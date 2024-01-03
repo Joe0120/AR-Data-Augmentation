@@ -58,6 +58,13 @@ if __name__ == '__main__':
                 else:
                     obj_exist_in_img = False
                     utils.delete_img(material.save_filename)
+            elif config_setting["mode_config"]["mode"]=="Segmentation":
+                max_contour, polygon = bbox.get_segmentation(material.save_filename)
+                if polygon:
+                    utils.write_polygon_label(material.save_filename, polygon)
+                else:
+                    obj_exist_in_img = False
+                    utils.delete_img(material.save_filename)
             elif config_setting["mode_config"]["mode"]=="3D":
                 print("3D")
 
@@ -70,6 +77,8 @@ if __name__ == '__main__':
             if obj_exist_in_img:
                 if config_setting["mode_config"]["mode"]=="2D":
                     display.generate_frame(img_path=material.save_filename, bbox=["2D", bbox_2D])
+                elif config_setting["mode_config"]["mode"]=="Segmentation":
+                    display.generate_frame(img_path=material.save_filename, bbox=["Segmentation", max_contour])
         blender_env.remove_all_obj()
     display.generate_frame(text="Done !")
     event.set()

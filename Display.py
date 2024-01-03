@@ -50,6 +50,8 @@ class Display:
         
         if bbox and bbox[0]=="2D":
             cv2.rectangle(frame, *bbox[1], (255,0,0), 3)
+        elif bbox and bbox[0]=="Segmentation":
+            cv2.drawContours(frame, [bbox[1]], -1, (0, 255, 0, 0), 3)
         _, buffer = cv2.imencode('.jpg', frame)
 
         with self.frame_lock:

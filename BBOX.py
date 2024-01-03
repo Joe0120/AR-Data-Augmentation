@@ -22,6 +22,27 @@ class BBOX:
             return None
         return [tuple(left_top[::-1]), tuple(right_bottom[::-1])]
     
+    def get_segmentation(self, filename):
+        image = cv2.imread(filename+'.png', cv2.IMREAD_UNCHANGED)
+        height, width = image.shape[:2]
+        alpha_channel = image[:, :, 3]
+        mask = alpha_channel > 0
+        image[mask, 0:3] = 255
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        
+        # 將圖片轉換為遮罩
+        ret, mask=cv2.threshold(gray, 127, 255, 0)
+        # 提取多邊形輪廓
+        contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        # 選擇最大的輪廓
+        if contours:
+            max_contour = max(contours, key=cv2.contourArea)
+            polygon = max_contour.squeeze().tolist()
+            polygon = ''.join([f" {point[0]/width} {point[1]/height}" for point in polygon])
+            return max_contour, polygon
+        else:
+            return None, None
+
     def get_bbox_3D(self):
         def np_matmul_coords(coords, matrix, space=None):
             M = (space @ matrix @ space.inverted()

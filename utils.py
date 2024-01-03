@@ -31,6 +31,11 @@ def write_yolo_label(filename, bbox_2D, img_size):
     write_file(filename, content)
     return
 
+def write_polygon_label(filename, polygon):
+    content = f"0{polygon}"
+    write_file(filename, content)
+    return
+
 def merge_bg(filename, bg_path, img_size):
     bg_img = (Image.open(bg_path)).resize(img_size, Image.LANCZOS)
     obj_img = (Image.open(f'{filename}.png')).resize(img_size, Image.LANCZOS)

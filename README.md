@@ -113,7 +113,7 @@ AR-Augmentation-BBOX-Data-Generator
         "python_file": "main.py"
     },
     "mode_config": {
-        "mode": "2D",
+        "mode": "2D",  // "2D" or "Segmentation"
         "with_bg": false,
         "with_color": true,
         "is_fisheye": true,
