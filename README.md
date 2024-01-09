@@ -129,7 +129,9 @@ AR-Augmentation-BBOX-Data-Generator
     "blender_env": {
         "background_blender": true,
         "resolution": [1280, 720],
-        "cam_distance": 200
+        "cam_distance": 200,
+        "cam_location": [0, 0, 1.75], // Fill in Camera location [x, y, z] or null
+        "cam_rotation": [90, 0, 270] // Fill in Camera rotation [x, y, z] or null
     },
     "obj_generate_setting": {
         "location_x": [1, 3, 5],
