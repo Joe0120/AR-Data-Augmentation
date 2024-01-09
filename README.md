@@ -119,7 +119,12 @@ AR-Augmentation-BBOX-Data-Generator
         "is_fisheye": true,
         "display_bbox": true,
         "display_bg": true,
-        "smallest_obj_size": [15, 15]
+        "smallest_obj_size": [15, 15],
+        "multi_obj": {
+            "enable": true,
+            "max_obj": 5,
+            "min_obj": 3
+        }
     },
     "blender_env": {
         "background_blender": true,

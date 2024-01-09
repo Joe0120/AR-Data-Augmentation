@@ -68,8 +68,12 @@ if __name__ == '__main__':
             elif config_setting["mode_config"]["mode"]=="3D":
                 print("3D")
 
-            if config_setting["mode_config"]["with_bg"] and obj_exist_in_img:
-                utils.merge_bg(material.save_filename, config_setting["file_env"]["bg_path"], config_setting["blender_env"]["resolution"])
+            if config_setting["mode_config"]["with_bg"] and obj_exist_in_img and not config_setting["mode_config"]["multi_obj"]["enable"]:
+                utils.merge_img(
+                    front_img_name=f'{material.save_filename}.png', 
+                    back_img_name=config_setting["file_env"]["bg_path"], 
+                    img_size=config_setting["blender_env"]["resolution"], 
+                    save_img_name=f'{material.save_filename}.png')
 
             if (not config_setting["mode_config"]["with_color"]) and obj_exist_in_img:
                 utils.convert_to_bw(material.save_filename)
@@ -80,5 +84,15 @@ if __name__ == '__main__':
                 elif config_setting["mode_config"]["mode"]=="Segmentation":
                     display.generate_frame(img_path=material.save_filename, bbox=["Segmentation", max_contour])
         blender_env.remove_all_obj()
+    
+    if config_setting["mode_config"]["multi_obj"]["enable"]:
+        utils.merge_multi_obj(
+            mode=config_setting["mode_config"]["mode"],
+            save_file=config_setting["file_env"]["save_file"],
+            img_size=config_setting["blender_env"]["resolution"], 
+            min=config_setting["mode_config"]["multi_obj"]["min_obj"],
+            max=config_setting["mode_config"]["multi_obj"]["max_obj"], 
+            bg_img=config_setting["file_env"]["bg_path"] if config_setting["mode_config"]["with_bg"] else None)
+
     display.generate_frame(text="Done !")
     event.set()
