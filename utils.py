@@ -1,4 +1,4 @@
-import os, json, glob, cv2
+import os, json, glob, cv2, re
 import numpy as np
 from math import sqrt
 import numpy as np
@@ -72,7 +72,7 @@ def fisheye_remove_edge(mask_filename:str, filename:str, img_size:list):
 
     cv2.imwrite(filename+'.png', render_image)
 
-def multi_bbox_2D(mask, img_size):
+def multi_bbox_2D(mask, img_size, cat_ls):
     bbox_ls = ''
     unique_values = np.unique(mask)
     if None in unique_values: return None
@@ -91,7 +91,7 @@ def multi_bbox_2D(mask, img_size):
         bbox_ls += f"0 {x} {y} {w} {h}\n"
     return bbox_ls
 
-def multi_polygon(mask, target_size):
+def multi_polygon(mask, target_size, cat_ls):
     polygon_ls = ''
     unique_values = np.unique(mask)
     if None in unique_values: return None
@@ -142,11 +142,14 @@ def merge_multi_obj(mode, save_file, img_size, min, max, bg_img):
         random_number = random.randint(min, max)
         random_elements_ls = sort_position(random.sample(img_ls, random_number))
 
+        cat_ls = []
         merge, mask= None, None
         for idx in range(len(random_elements_ls) - 1):
+            cat = re.search(r'[\\\/](\w+)\ \w+\ [\d+\-]', random_elements_ls[idx]).group(1)
             if not merge and not mask:
                 merge = Image.open(random_elements_ls[idx])
                 mask = np.where(np.array(merge)[:, :, 3] != 0, 1, 0)
+                cat_ls.append(cat)
         
             new_merge_mask, back_area = merge_mask(mask, random_elements_ls[idx+1])
             if back_area>0.15:
@@ -155,9 +158,9 @@ def merge_multi_obj(mode, save_file, img_size, min, max, bg_img):
                 cat_ls.append(cat)
 
         if mode == '2D':
-            label = multi_bbox_2D(mask, img_size)
+            label = multi_bbox_2D(mask, img_size, cat_ls)
         elif mode == 'Segmentation':
-            label = multi_polygon(mask, img_size)
+            label = multi_polygon(mask, img_size, cat_ls)
 
         if label:
             if bg_img: merge = merge_img(merge, bg_img, img_size=img_size)
