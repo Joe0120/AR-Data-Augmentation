@@ -133,7 +133,7 @@ def sort_position(img_ls:list) -> list:
     return unique_img_ls
 
 def merge_multi_obj(mode, save_file, img_size, min, max, bg_img):
-    img_ls = glob.glob(save_file + r'/*.png')
+    img_ls = [file for file in glob.glob(save_file + r'/*.png') if 'fisheye_' not in file]
     if not os.path.exists(save_file+'/multi_obj'): os.makedirs(save_file+'/multi_obj')
 
     for i in range(0, len(img_ls)//min*2):
