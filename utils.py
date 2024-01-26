@@ -41,8 +41,8 @@ def write_polygon_label(filename, polygon):
     return
 
 def merge_img(front_img_name:Union[str, Image.Image], back_img_name:Union[str, Image.Image], img_size=(1280, 720), save_img_name=None) ->  Image.Image:
-    front_img = front_img_name if type(front_img_name) == Image.Image else Image.open(front_img_name)
-    back_img = back_img_name if type(back_img_name) == Image.Image else Image.open(back_img_name)
+    front_img = front_img_name if isinstance(front_img_name, Image.Image) else Image.open(front_img_name)
+    back_img = back_img_name if isinstance(back_img_name, Image.Image) else Image.open(back_img_name)
     front_img = front_img.resize(img_size, Image.LANCZOS).convert('RGBA')
     back_img = back_img.resize(img_size, Image.LANCZOS).convert('RGBA')
 
@@ -75,6 +75,7 @@ def fisheye_remove_edge(mask_filename:str, filename:str, img_size:list):
 def multi_bbox_2D(mask, img_size):
     bbox_ls = ''
     unique_values = np.unique(mask)
+    if None in unique_values: return None
     for val in unique_values:
         if val == 0: continue
         non_zero_pixels = np.argwhere(mask == val)
@@ -91,8 +92,9 @@ def multi_bbox_2D(mask, img_size):
     return bbox_ls
 
 def multi_polygon(mask, target_size):
-    unique_values = np.unique(mask)
     polygon_ls = ''
+    unique_values = np.unique(mask)
+    if None in unique_values: return None
     for val in unique_values:
         if val == 0: continue
         region = np.uint8(mask == val) * 255
@@ -139,22 +141,26 @@ def merge_multi_obj(mode, save_file, img_size, min, max, bg_img):
     for i in range(0, len(img_ls)//min*2):
         random_number = random.randint(min, max)
         random_elements_ls = sort_position(random.sample(img_ls, random_number))
-        merge, mask=None, None
 
-        for idx in range(len(random_elements_ls) - 1):        
+        merge, mask= None, None
+        for idx in range(len(random_elements_ls) - 1):
             if not merge and not mask:
-                mask = random_elements_ls[idx]
-                merge = random_elements_ls[idx]
+                merge = Image.open(random_elements_ls[idx])
+                mask = np.where(np.array(merge)[:, :, 3] != 0, 1, 0)
         
             new_merge_mask, back_area = merge_mask(mask, random_elements_ls[idx+1])
             if back_area>0.15:
                 mask = new_merge_mask
                 merge = merge_img(merge, random_elements_ls[idx+1], img_size=img_size)
+                cat_ls.append(cat)
+
         if mode == '2D':
             label = multi_bbox_2D(mask, img_size)
         elif mode == 'Segmentation':
             label = multi_polygon(mask, img_size)
-        if bg_img:
-            merge = merge_img(merge, bg_img, img_size=img_size)
-        merge.save(f'{save_file}/multi_obj/{i:0>6}.png')
-        with open(f'{save_file}/multi_obj/{i:0>6}.txt', 'w') as f: f.write(label)
+
+        if label:
+            if bg_img: merge = merge_img(merge, bg_img, img_size=img_size)
+
+            merge.save(f'{save_file}/multi_obj/{i:0>6}.png')
+            with open(f'{save_file}/multi_obj/{i:0>6}.txt', 'w') as f: f.write(label)
