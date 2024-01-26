@@ -49,7 +49,7 @@ if __name__ == '__main__':
             obj_exist_in_img = True
 
             if config_setting["mode_config"]["is_fisheye"] and obj_exist_in_img:
-                utils.fisheye_remove_edge(f'{config_setting["file_env"]["save_file"]}/fisheye_.png', material.save_filename)
+                utils.fisheye_remove_edge(f'{config_setting["file_env"]["save_file"]}/fisheye_.png', material.save_filename, config_setting["blender_env"]["resolution"])
 
             if config_setting["mode_config"]["mode"]=="2D":
                 bbox_2D = bbox.get_bbox_2D(material.save_filename)

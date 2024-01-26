@@ -62,9 +62,9 @@ def saveToJson(ls, filename):
     with open(filename, "w", encoding="utf-8") as outfile:
         outfile.write(json_object)
 
-def fisheye_remove_edge(mask_filename, filename):
+def fisheye_remove_edge(mask_filename:str, filename:str, img_size:list):
     # 魚眼去掉黑邊
-    mask = np.array(cv2.resize(cv2.imread(mask_filename, cv2.IMREAD_UNCHANGED), [1280, 720]))
+    mask = np.array(cv2.resize(cv2.imread(mask_filename, cv2.IMREAD_UNCHANGED), img_size))
     render_image = np.array(cv2.imread(filename+'.png', cv2.IMREAD_UNCHANGED))
 
     alpha_mask = mask[:, :, 3] > 0
