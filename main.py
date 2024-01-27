@@ -51,12 +51,19 @@ if __name__ == '__main__':
             obj_exist_in_img = True
 
             if config_setting["mode_config"]["is_fisheye"] and obj_exist_in_img:
-                utils.fisheye_remove_edge(f'{config_setting["file_env"]["save_file"]}/fisheye_.png', material.save_filename)
+                utils.fisheye_remove_edge(f'{config_setting["file_env"]["save_file"]}/fisheye_.png', material.save_filename, config_setting["blender_env"]["resolution"])
 
             if config_setting["mode_config"]["mode"]=="2D":
                 bbox_2D = bbox.get_bbox_2D(material.save_filename)
                 if bbox_2D:
                     utils.write_yolo_label(material.save_filename, bbox_2D, config_setting["blender_env"]["resolution"])
+                else:
+                    obj_exist_in_img = False
+                    utils.delete_img(material.save_filename)
+            elif config_setting["mode_config"]["mode"]=="Segmentation":
+                max_contour, polygon = bbox.get_segmentation(material.save_filename)
+                if polygon:
+                    utils.write_polygon_label(material.save_filename, polygon)
                 else:
                     obj_exist_in_img = False
                     utils.delete_img(material.save_filename)
@@ -72,8 +79,12 @@ if __name__ == '__main__':
                     utils.write_kitti_calib(material.save_filename)
                 print("3D")
 
-            if config_setting["mode_config"]["with_bg"] and obj_exist_in_img:
-                utils.merge_bg(material.save_filename, config_setting["file_env"]["bg_path"], config_setting["blender_env"]["resolution"])
+            if config_setting["mode_config"]["with_bg"] and obj_exist_in_img and not config_setting["mode_config"]["multi_obj"]["enable"]:
+                utils.merge_img(
+                    front_img_name=f'{material.save_filename}.png', 
+                    back_img_name=config_setting["file_env"]["bg_path"], 
+                    img_size=config_setting["blender_env"]["resolution"], 
+                    save_img_name=f'{material.save_filename}.png')
 
             if (not config_setting["mode_config"]["with_color"]) and obj_exist_in_img:
                 utils.convert_to_bw(material.save_filename)
@@ -81,6 +92,18 @@ if __name__ == '__main__':
             if obj_exist_in_img:
                 if config_setting["mode_config"]["mode"]=="2D":
                     display.generate_frame(img_path=material.save_filename, bbox=["2D", bbox_2D])
+                elif config_setting["mode_config"]["mode"]=="Segmentation":
+                    display.generate_frame(img_path=material.save_filename, bbox=["Segmentation", max_contour])
         blender_env.remove_all_obj()
+    
+    if config_setting["mode_config"]["multi_obj"]["enable"]:
+        utils.merge_multi_obj(
+            mode=config_setting["mode_config"]["mode"],
+            save_file=config_setting["file_env"]["save_file"],
+            img_size=config_setting["blender_env"]["resolution"], 
+            min=config_setting["mode_config"]["multi_obj"]["min_obj"],
+            max=config_setting["mode_config"]["multi_obj"]["max_obj"], 
+            bg_img=config_setting["file_env"]["bg_path"] if config_setting["mode_config"]["with_bg"] else None)
+
     display.generate_frame(text="Done !")
     event.set()
