@@ -26,7 +26,7 @@ class Material:
             bpy.data.collections['fbx_col'].objects.link(obj)
             self.obj = bpy.data.objects[obj.name]
 
-        elif self.type=='blend' and self.config_setting["mode_config"]["mode"]=="2D":
+        elif self.type=='blend' and any(mode in self.config_setting["mode_config"]["mode"] for mode in ["2D", "Seg"]):
             blendFile = self.path
             with bpy.data.libraries.load(blendFile) as (data_from, data_to):
                 data_to.collections = data_from.collections
@@ -36,7 +36,7 @@ class Material:
             bpy.data.collections['blend_col'].objects.link(instance)
             self.obj = bpy.data.objects[data_to.collections[0].name]
 
-        elif self.type=='blend' and self.config_setting["mode_config"]["mode"]=="3D":
+        elif self.type=='blend' and "3D" in self.config_setting["mode_config"]["mode"]:
             blendFile = self.path
             link = False # append, set to true to keep the link to the original file
             with bpy.data.libraries.load(blendFile, link=link) as (data_from, data_to):
