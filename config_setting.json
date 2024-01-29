@@ -26,7 +26,7 @@
         "resolution": [1242, 375],
         "cam_distance": 200,
         "cam_location": [0, 0, 1.75],
-        "cam_rotation": [90, 0, 270]
+        "cam_rotation": [90, 0, 270],
         "cam_intrinsics": null
     },
     "obj_generate_setting": {
