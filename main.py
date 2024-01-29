@@ -17,6 +17,7 @@ if __name__ == '__main__':
     blender_env.init_node()
     blender_env.remove_all_obj()
     blender_env.create_collection()
+    utils.create_render_folder(config_setting)
 
     blender_camera = Camera(config_setting)
     blender_camera.set_camera()

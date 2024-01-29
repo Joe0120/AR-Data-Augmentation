@@ -136,7 +136,6 @@ def sort_position(img_ls:list) -> list:
 
 def merge_multi_obj(mode, save_file, img_size, min, max, bg_img):
     img_ls = [file for file in glob.glob(save_file + r'/*.png') if 'fisheye_' not in file]
-    if not os.path.exists(save_file+'/multi_obj'): os.makedirs(save_file+'/multi_obj')
 
     for i in range(0, len(img_ls)//min*2):
         random_number = random.randint(min, max)
@@ -167,3 +166,13 @@ def merge_multi_obj(mode, save_file, img_size, min, max, bg_img):
 
             merge.save(f'{save_file}/multi_obj/{i:0>6}.png')
             with open(f'{save_file}/multi_obj/{i:0>6}.txt', 'w') as f: f.write(label)
+
+def create_render_folder(config_setting):
+    create_folder_ls = []
+    if config_setting["mode_config"]["mode"]=="KITTI_3D":
+        create_folder_ls += ["/image_2", "/label_2", "/calib"]
+    if config_setting["mode_config"]["multi_obj"]["enable"]:
+        create_folder_ls += ["/multi_obj"]
+    for folder in create_folder_ls:
+        save_file = os.path.abspath(config_setting["file_env"]["save_file"] + folder)
+        if not os.path.exists(save_file): os.makedirs(save_file)
