@@ -58,28 +58,21 @@ class BBOX:
                 )
             )
         bfl = coords.min(axis=0)
-        # top back right
         tbr = coords.max(axis=0)
         G  = np.array((bfl, tbr)).T
-        # bound box coords ie the 8 combinations of bfl tbr.
         bbc = [i for i in itertools.product(*G)]
 
         return np.array(bbc)
 
-    def get_bbox3D_loc(self, bbc):
+    def get_bbox3D_loc(self, bbc, camera_height):
         data = np.array(bbc)
-        print(np.round(data, 2))
         center = np.mean(data, axis=0)
-        obj_height = np.max(data[:, 2])-np.min(data[:, 2])
-        center[2] = (obj_height/1.65) - (obj_height-2)/2
+        center[2] = camera_height
         closest_top_rounded = np.round(center, 2)
-        print(closest_top_rounded)
         return [-closest_top_rounded[1], closest_top_rounded[2], closest_top_rounded[0]]
     
     def get_bev_alpha(self, material_args):
         return math.atan2(material_args["location_x"], material_args["location_y"])
 
-    def get_bev_rotation_y(self, material_args):
-        radian_angle = math.radians(material_args)
+    def get_bev_rotation_y(self, radian_angle):
         return math.atan2(-math.sin(radian_angle), math.cos(radian_angle))
-        

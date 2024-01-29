@@ -1,31 +1,33 @@
 {
     "file_env": {
-        "save_file": "output/BSIS_2",
-        "blender_file": "blender/BSIS_2.blend",
-        "bg_path": "backgrounds/BSIS_2.jpg",
-        "classes": "clasess.txt",
-        "python_file": "main.py"
+        "save_file": "output/kitti_000013",
+        "blender_file": "blender/kitti_000013.blend",
+        "bg_path": "backgrounds/kitti_000013_empty.jpg",
+        "classes": "classes.txt",
+        "python_file": "main.py",
+        "kitti_calib_file": "kitti_calib/000013.txt"
     },
     "mode_config": {
-        "mode": "2D",
-        "with_bg": false,
+        "mode": "KITTI_3D",
+        "with_bg": true,
         "with_color": true,
-        "is_fisheye": true,
+        "is_fisheye": false,
         "display_bbox": true,
         "display_bg": true,
         "smallest_obj_size": [15, 15],
         "multi_obj": {
-            "enable": true,
+            "enable": false,
             "max_obj": 5,
             "min_obj": 3
         }
     },
     "blender_env": {
         "background_blender": true,
-        "resolution": [1280, 720],
+        "resolution": [1242, 375],
         "cam_distance": 200,
         "cam_location": [0, 0, 1.75],
         "cam_rotation": [90, 0, 270]
+        "cam_intrinsics": null
     },
     "obj_generate_setting": {
         "location_x": [1, 3, 5],

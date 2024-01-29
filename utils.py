@@ -37,22 +37,17 @@ def write_yolo_label(filename, bbox_2D, img_size):
 
 def write_kitti_label(filename, bev_alpha, bbox_2D, dimension, bbox_3D_loc, bev_rotation_y):
     content = f"Car 0.00 0 {round(bev_alpha, 4)} {bbox_2D[0][0]} {bbox_2D[0][1]} {bbox_2D[1][0]} {bbox_2D[1][1]} {round(dimension[2], 4)} {round(dimension[0], 4)} {round(dimension[1], 4)} {bbox_3D_loc[0]} {bbox_3D_loc[1]} {bbox_3D_loc[2]} {round(bev_rotation_y, 4)}"
-    
     write_file(filename.replace("image_2", "label_2"), content)
+
 def write_polygon_label(filename, polygon):
     content = f"0{polygon}"
     write_file(filename, content)
     return
 
-def write_kitti_calib(filename):
-    content = '''P0: 7.215377000000e+02 0.000000000000e+00 6.095593000000e+02 0.000000000000e+00 0.000000000000e+00 7.215377000000e+02 1.728540000000e+02 0.000000000000e+00 0.000000000000e+00 0.000000000000e+00 1.000000000000e+00 0.000000000000e+00
-P1: 7.215377000000e+02 0.000000000000e+00 6.095593000000e+02 -3.875744000000e+02 0.000000000000e+00 7.215377000000e+02 1.728540000000e+02 0.000000000000e+00 0.000000000000e+00 0.000000000000e+00 1.000000000000e+00 0.000000000000e+00
-P2: 689.6903 -0.0001 621.0000 -0.0001 0.0000 689.6903 187.5000 343.5957 0.0000 -0.0000 1.0000 -0.0000
-P3: 7.215377000000e+02 0.000000000000e+00 6.095593000000e+02 -3.395242000000e+02 0.000000000000e+00 7.215377000000e+02 1.728540000000e+02 2.199936000000e+00 0.000000000000e+00 0.000000000000e+00 1.000000000000e+00 2.729905000000e-03
-R0_rect: 9.999239000000e-01 9.837760000000e-03 -7.445048000000e-03 -9.869795000000e-03 9.999421000000e-01 -4.278459000000e-03 7.402527000000e-03 4.351614000000e-03 9.999631000000e-01
-Tr_velo_to_cam: 7.533745000000e-03 -9.999714000000e-01 -6.166020000000e-04 -4.069766000000e-03 1.480249000000e-02 7.280733000000e-04 -9.998902000000e-01 -7.631618000000e-02 9.998621000000e-01 7.523790000000e-03 1.480755000000e-02 -2.717806000000e-01
-Tr_imu_to_velo: 9.999976000000e-01 7.553071000000e-04 -2.035826000000e-03 -8.086759000000e-01 -7.854027000000e-04 9.998898000000e-01 -1.482298000000e-02 3.195559000000e-01 2.024406000000e-03 1.482454000000e-02 9.998881000000e-01 -7.997231000000e-01
-'''
+def write_kitti_calib(filename, kitti_calib):
+    content = ""
+    for key, value in kitti_calib.items():
+        content += f"{key}: {value}\n"
     write_file(filename.replace("image_2", "calib"), content)
 
 def merge_bg(filename, bg_path, img_size):
@@ -61,6 +56,7 @@ def merge_bg(filename, bg_path, img_size):
     bg_img.paste(obj_img, (0,0), mask=obj_img)
     bg_img.save(f'{filename}.png')
     return
+
 def merge_img(front_img_name:Union[str, Image.Image], back_img_name:Union[str, Image.Image], img_size=(1280, 720), save_img_name=None) ->  Image.Image:
     front_img = front_img_name if isinstance(front_img_name, Image.Image) else Image.open(front_img_name)
     back_img = back_img_name if isinstance(back_img_name, Image.Image) else Image.open(back_img_name)
