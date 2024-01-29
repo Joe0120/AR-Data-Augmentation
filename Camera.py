@@ -12,10 +12,17 @@ class Camera:
             for _idx, key in enumerate(self.location):
                 self.location[key] = self.config_setting["blender_env"]["cam_location"][_idx]
                 bpy.data.objects['Camera'].location[_idx] = self.config_setting["blender_env"]["cam_location"][_idx]
+        else:
+            for _idx, key in enumerate(self.location):
+                self.location[key] = bpy.data.objects['Camera'].location[_idx]
+
         if self.config_setting["blender_env"]["cam_rotation"]:
             for _idx, key in enumerate(self.rotation):
                 self.rotation[key] = self.config_setting["blender_env"]["cam_rotation"][_idx]
-                bpy.data.objects['Camera'].rotation_euler[_idx] = self.config_setting["blender_env"]["cam_rotation"][_idx]
+                bpy.data.objects['Camera'].rotation_euler[_idx] = math.radians(self.config_setting["blender_env"]["cam_rotation"][_idx])
+        else:
+            for _idx, key in enumerate(self.rotation):
+                self.rotation[key] = math.degrees(bpy.data.objects['Camera'].rotation_euler[_idx])
 
         bpy.data.objects['Camera'].data.clip_end = self.config_setting["blender_env"]["cam_distance"]
         if self.config_setting["mode_config"]["is_fisheye"]:
