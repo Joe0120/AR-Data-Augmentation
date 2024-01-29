@@ -18,7 +18,8 @@ if __name__ == '__main__':
     blender_env.remove_all_obj()
     blender_env.create_collection()
 
-    Camera(config_setting).set_camera()
+    blender_camera = Camera(config_setting)
+    blender_camera.set_camera()
 
     bbox = BBOX(config_setting)
     if config_setting["mode_config"]["is_fisheye"]:
