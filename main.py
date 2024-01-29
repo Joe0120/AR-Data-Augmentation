@@ -41,7 +41,7 @@ if __name__ == '__main__':
         param_names = list(config_setting["obj_generate_setting"].keys())
         for param_set in param_combinations:
             param_dict = {param_names[i]: param_set[i] for i in range(len(param_names))}
-            print(param_dict)
+            print(material.name, param_dict)
             material.set_args(param_dict)
             material.setting_place()
             material.name_save_filename(f"{cnt:0>6}")
