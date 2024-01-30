@@ -7,11 +7,20 @@ from PIL import Image
 from typing import Union
 from Material import Material
 
-def get_material_ls(config_setting):
+def get_category_ls(config_setting):
+    class_path = config_setting["file_env"]["classes"]
+    if class_path and os.path.exists(class_path):
+        with open(class_path, "r") as file:
+            category_ls = [line.strip() for line in file.readlines()]
+    else:
+        category_ls = os.listdir('objects')
+    return category_ls
+
+def get_material_ls(config_setting, category_ls):
     material_ls = []
-    for category in os.listdir('objects'):
-        fbx_dir = os.path.abspath(r'objects/{}/*.fbx'.format(category))
-        blend_dir = os.path.abspath(r'objects/{}/*.blend'.format(category))
+    for category in category_ls:
+        fbx_dir = os.path.abspath(f'objects/{category}/*.fbx')
+        blend_dir = os.path.abspath(f'objects/{category}/*.blend')
         for obj_path in glob.glob(fbx_dir)+glob.glob(blend_dir):
             material_ls.append(Material(config_setting, category, obj_path))
     return material_ls
@@ -25,13 +34,12 @@ def delete_img(filename):
     os.remove(filename+'.png')
     return
 
-def write_yolo_label(filename, bbox_2D, img_size):
-    # sample: bbox_2D = [(x_min,y_min), (x_max,y_max)]
+def write_yolo_label(filename, bbox_2D, img_size, cat_index):
     x = (bbox_2D[0][0] + bbox_2D[1][0]) / (2 * img_size[0])
     y = (bbox_2D[0][1] + bbox_2D[1][1]) / (2 * img_size[1])
     w = (bbox_2D[1][0] - bbox_2D[0][0]) / img_size[0]
     h = (bbox_2D[1][1] - bbox_2D[0][1]) / img_size[1]
-    content = f"0 {x} {y} {w} {h}"
+    content = f"{cat_index} {x} {y} {w} {h}"
     write_file(filename, content)
     return
 
@@ -39,8 +47,8 @@ def write_kitti_label(filename, bev_alpha, bbox_2D, dimension, bbox_3D_loc, bev_
     content = f"Car 0.00 0 {round(bev_alpha, 4)} {bbox_2D[0][0]} {bbox_2D[0][1]} {bbox_2D[1][0]} {bbox_2D[1][1]} {round(dimension[2], 4)} {round(dimension[0], 4)} {round(dimension[1], 4)} {bbox_3D_loc[0]} {bbox_3D_loc[1]} {bbox_3D_loc[2]} {round(bev_rotation_y, 4)}"
     write_file(filename.replace("image_2", "label_2"), content)
 
-def write_polygon_label(filename, polygon):
-    content = f"0{polygon}"
+def write_polygon_label(filename, polygon, cat_index):
+    content = f"{cat_index}{polygon}"
     write_file(filename, content)
     return
 
@@ -105,7 +113,8 @@ def multi_bbox_2D(mask, img_size, cat_ls):
         y = (bbox_2D[0][1] + bbox_2D[1][1]) / (2 * img_size[1])
         w = (bbox_2D[1][0] - bbox_2D[0][0]) / img_size[0]
         h = (bbox_2D[1][1] - bbox_2D[0][1]) / img_size[1]
-        bbox_ls += f"0 {x} {y} {w} {h}\n"
+
+        bbox_ls += f"{cat_ls[val-1]} {x} {y} {w} {h}\n"
     return bbox_ls
 
 def multi_polygon(mask, target_size, cat_ls):
@@ -120,7 +129,7 @@ def multi_polygon(mask, target_size, cat_ls):
             max_contour = max(contours, key=cv2.contourArea)
             polygon = max_contour.squeeze().tolist()
             polygon = ''.join([f" {point[0]/target_size[0]} {point[1]/target_size[1]}" for point in polygon])
-            polygon_ls+=f"0{polygon}\n"
+            polygon_ls+=f"{cat_ls[val-1]}{polygon}\n"
     return polygon_ls
 
 def merge_mask(front_img_name:Union[str, np.ndarray], back_img_name:Union[str, np.ndarray]) -> np.ndarray:
@@ -151,7 +160,7 @@ def sort_position(img_ls:list) -> list:
             unique_img_ls.append(path)
     return unique_img_ls
 
-def merge_multi_obj(mode, save_file, img_size, min, max, bg_img):
+def merge_multi_obj(mode, save_file, img_size, min, max, bg_img, category_ls):
     img_ls = [file for file in glob.glob(save_file + r'/*.png') if 'fisheye_' not in file]
 
     for i in range(0, len(img_ls)//min*2):
@@ -160,18 +169,20 @@ def merge_multi_obj(mode, save_file, img_size, min, max, bg_img):
 
         cat_ls = []
         merge, mask= None, None
-        for idx in range(len(random_elements_ls) - 1):
-            cat = re.search(r'[\\\/](\w+)\ \w+\ [\d+\-]', random_elements_ls[idx]).group(1)
+        for idx in range(len(random_elements_ls) - 1):            
+            cat_pattern = r'[\\\/](\w+)\ \w+\ [\d+\-]'
             if not merge and not mask:
                 merge = Image.open(random_elements_ls[idx])
                 mask = np.where(np.array(merge)[:, :, 3] != 0, 1, 0)
-                cat_ls.append(cat)
+                cat = re.search(cat_pattern, random_elements_ls[idx]).group(1)
+                cat_ls.append(category_ls.index(cat))
         
             new_merge_mask, back_area = merge_mask(mask, random_elements_ls[idx+1])
             if back_area>0.15:
                 mask = new_merge_mask
                 merge = merge_img(merge, random_elements_ls[idx+1], img_size=img_size)
-                cat_ls.append(cat)
+                cat = re.search(cat_pattern, random_elements_ls[idx+1]).group(1)
+                cat_ls.append(category_ls.index(cat))
 
         if mode == '2D':
             label = multi_bbox_2D(mask, img_size, cat_ls)
