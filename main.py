@@ -84,7 +84,7 @@ if __name__ == '__main__':
                     bbox_3D_loc = bbox.get_bbox3D_loc(bbox_3D, blender_camera.location["z"])
                     bev_alpha = bbox.get_bev_alpha(material.args)
                     bev_rotation_y = bbox.get_bev_rotation_y(material.args["rotation_z"])
-                    utils.write_kitti_label(material.save_filename, bev_alpha, bbox_2D, material.dimension, bbox_3D_loc, bev_rotation_y)
+                    utils.write_kitti_label(material.save_filename, bev_alpha, bbox_2D, material.dimension, bbox_3D_loc, bev_rotation_y, material.category)
                     utils.write_kitti_calib(material.save_filename, blender_camera.kitti_calib)
 
             if config_setting["mode_config"]["with_bg"] and obj_exist_in_img and not config_setting["mode_config"]["multi_obj"]["enable"]:
@@ -112,7 +112,8 @@ if __name__ == '__main__':
             min=config_setting["mode_config"]["multi_obj"]["min_obj"],
             max=config_setting["mode_config"]["multi_obj"]["max_obj"], 
             bg_img=config_setting["file_env"]["bg_path"] if config_setting["mode_config"]["with_bg"] else None,
-            category_ls=category_ls)
+            category_ls=category_ls,
+            kitti_calib=blender_camera.kitti_calib)
 
     display.generate_frame(text="Done !")
     event.set()

@@ -43,8 +43,8 @@ def write_yolo_label(filename, bbox_2D, img_size, cat_index):
     write_file(filename, content)
     return
 
-def write_kitti_label(filename, bev_alpha, bbox_2D, dimension, bbox_3D_loc, bev_rotation_y):
-    content = f"Car 0.00 0 {round(bev_alpha, 4)} {bbox_2D[0][0]} {bbox_2D[0][1]} {bbox_2D[1][0]} {bbox_2D[1][1]} {round(dimension[2], 4)} {round(dimension[0], 4)} {round(dimension[1], 4)} {bbox_3D_loc[0]} {bbox_3D_loc[1]} {bbox_3D_loc[2]} {round(bev_rotation_y, 4)}"
+def write_kitti_label(filename, bev_alpha, bbox_2D, dimension, bbox_3D_loc, bev_rotation_y, category):
+    content = f"{category} 0.00 0 {round(bev_alpha, 4)} {bbox_2D[0][0]} {bbox_2D[0][1]} {bbox_2D[1][0]} {bbox_2D[1][1]} {round(dimension[2], 4)} {round(dimension[0], 4)} {round(dimension[1], 4)} {bbox_3D_loc[0]} {bbox_3D_loc[1]} {bbox_3D_loc[2]} {round(bev_rotation_y, 4)}"
     write_file(filename.replace("image_2", "label_2"), content)
 
 def write_polygon_label(filename, polygon, cat_index):
@@ -132,6 +132,16 @@ def multi_polygon(mask, target_size, cat_ls):
             polygon_ls+=f"{cat_ls[val-1]}{polygon}\n"
     return polygon_ls
 
+def multi_KITTI_3D(img_ls):
+    label_ls = ''
+    for path in img_ls:
+        label_path = path.replace("image_2", "label_2").replace(".png", ".txt")
+        with open(label_path, "r") as file:
+            label = file.readlines()[0]
+            label_ls += f"{label}\n"
+            print(label_path, label)
+    return label_ls
+
 def merge_mask(front_img_name:Union[str, np.ndarray], back_img_name:Union[str, np.ndarray]) -> np.ndarray:
     front_img = front_img_name if type(front_img_name) == np.ndarray else np.array(Image.open(front_img_name))
     back_img = back_img_name if type(back_img_name) == np.ndarray else np.array(Image.open(back_img_name))
@@ -160,14 +170,18 @@ def sort_position(img_ls:list) -> list:
             unique_img_ls.append(path)
     return unique_img_ls
 
-def merge_multi_obj(mode, save_file, img_size, min, max, bg_img, category_ls):
-    img_ls = [file for file in glob.glob(save_file + r'/*.png') if 'fisheye_' not in file]
+def merge_multi_obj(mode, save_file, img_size, min, max, bg_img, category_ls, kitti_calib=None):
+    if mode =="KITTI_3D":
+        img_ls = [file for file in glob.glob(save_file + r'/image_2/*.png')]
+    else:
+        img_ls = [file for file in glob.glob(save_file + r'/*.png') if 'fisheye_' not in file]
 
+    cnt = 0
     for i in range(0, len(img_ls)//min*2):
         random_number = random.randint(min, max)
         random_elements_ls = sort_position(random.sample(img_ls, random_number))
 
-        cat_ls = []
+        cat_ls, obj_img_ls = [], []
         merge, mask= None, None
         for idx in range(len(random_elements_ls) - 1):            
             cat_pattern = r'[\\\/](\w+)\ \w+\ [\d+\-]'
@@ -176,6 +190,7 @@ def merge_multi_obj(mode, save_file, img_size, min, max, bg_img, category_ls):
                 mask = np.where(np.array(merge)[:, :, 3] != 0, 1, 0)
                 cat = re.search(cat_pattern, random_elements_ls[idx]).group(1)
                 cat_ls.append(category_ls.index(cat))
+                obj_img_ls.append(random_elements_ls[idx])
         
             new_merge_mask, back_area = merge_mask(mask, random_elements_ls[idx+1])
             if back_area>0.15:
@@ -183,24 +198,36 @@ def merge_multi_obj(mode, save_file, img_size, min, max, bg_img, category_ls):
                 merge = merge_img(merge, random_elements_ls[idx+1], img_size=img_size)
                 cat = re.search(cat_pattern, random_elements_ls[idx+1]).group(1)
                 cat_ls.append(category_ls.index(cat))
+                obj_img_ls.append(random_elements_ls[idx+1])
 
         if mode == '2D':
             label = multi_bbox_2D(mask, img_size, cat_ls)
         elif mode == 'Segmentation':
             label = multi_polygon(mask, img_size, cat_ls)
+        elif mode == 'KITTI_3D':
+            label = multi_KITTI_3D(obj_img_ls)
 
         if label:
             if bg_img: merge = merge_img(merge, bg_img, img_size=img_size)
 
-            merge.save(f'{save_file}/multi_obj/{i:0>6}.png')
-            with open(f'{save_file}/multi_obj/{i:0>6}.txt', 'w') as f: f.write(label)
+            if mode == 'KITTI_3D':
+                merge.save(f'{save_file}/multi_obj/image_2/{cnt:0>6}.png')
+                with open(f'{save_file}/multi_obj/label_2/{cnt:0>6}.txt', 'w') as f: f.write(label)
+                write_kitti_calib(f'{save_file}/multi_obj/calib/{cnt:0>6}', kitti_calib)
+            else:
+                merge.save(f'{save_file}/multi_obj/{cnt:0>6}.png')
+                with open(f'{save_file}/multi_obj/{cnt:0>6}.txt', 'w') as f: f.write(label)
+            cnt += 1
 
 def create_render_folder(config_setting):
     create_folder_ls = []
     if config_setting["mode_config"]["mode"]=="KITTI_3D":
         create_folder_ls += ["/image_2", "/label_2", "/calib"]
     if config_setting["mode_config"]["multi_obj"]["enable"]:
-        create_folder_ls += ["/multi_obj"]
+        if config_setting["mode_config"]["mode"]=="KITTI_3D":
+            create_folder_ls += ["/multi_obj/image_2", "/multi_obj/label_2", "/multi_obj/calib"]
+        else:
+            create_folder_ls += ["/multi_obj"]
     for folder in create_folder_ls:
         save_file = os.path.abspath(config_setting["file_env"]["save_file"] + folder)
         if not os.path.exists(save_file): os.makedirs(save_file)

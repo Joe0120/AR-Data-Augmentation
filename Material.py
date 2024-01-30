@@ -1,4 +1,5 @@
-import os, math, datetime
+import os, math, datetime, itertools
+import numpy as np
 import bpy
 
 class Material:
