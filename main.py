@@ -49,7 +49,10 @@ if __name__ == '__main__':
             material.setting_place()
 
             if config_setting["mode_config"]["mode"]=="KITTI_3D":
-                material.name_save_filename(f"{cnt:0>6}")
+                if config_setting["mode_config"]["multi_obj"]["enable"]:
+                    material.name_save_filename(mode=config_setting["mode_config"]["mode"])
+                else:
+                    material.name_save_filename(filename=f"{cnt:0>6}", mode="KITTI_3D")
                 cnt+=1
             else:
                 material.name_save_filename()
