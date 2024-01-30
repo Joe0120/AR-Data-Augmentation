@@ -33,7 +33,8 @@ if __name__ == '__main__':
     display_thread.start()
     display.generate_frame(text='waiting...')
 
-    material_ls: [Material] = utils.get_material_ls(config_setting)
+    category_ls = utils.get_category_ls(config_setting)
+    material_ls: [Material] = utils.get_material_ls(config_setting, category_ls)
     for material in material_ls:
         material.load_obj()
 

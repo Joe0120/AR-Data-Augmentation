@@ -7,23 +7,19 @@ from PIL import Image
 from typing import Union
 from Material import Material
 
-def get_material_ls(config_setting):
-    material_ls = []
-    # class_path = "class.txt"
-    with open('config_setting.json','r') as config_file:
-        config_data = json.load(config_file)
-
-    class_path = config_data["file_env"].get("classes")
+def get_category_ls(config_setting):
+    class_path = config_setting["file_env"]["classes"]
     with open(class_path, "r") as file:
-        categories = [line.strip() for line in file.readlines()]
-    
-    # for category in os.listdir('objects'):
-    for category in categories:
-        fbx_dir = os.path.abspath(r'objects/{}/*.fbx'.format(category))
-        blend_dir = os.path.abspath(r'objects/{}/*.blend'.format(category))
+        category_ls = [line.strip() for line in file.readlines()]
+    return category_ls
+
+def get_material_ls(config_setting, category_ls):
+    material_ls = []
+    for category in category_ls:
+        fbx_dir = os.path.abspath(f'objects/{category}/*.fbx')
+        blend_dir = os.path.abspath(f'objects/{category}/*.blend')
         for obj_path in glob.glob(fbx_dir)+glob.glob(blend_dir):
             material_ls.append(Material(config_setting, category, obj_path))
-    print(config_setting)
     return material_ls
 
 def write_file(filename, content):
