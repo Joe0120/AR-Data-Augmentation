@@ -57,14 +57,14 @@ if __name__ == '__main__':
             if config_setting["mode_config"]["mode"]=="2D":
                 bbox_2D = bbox.get_bbox_2D(material.save_filename)
                 if bbox_2D:
-                    utils.write_yolo_label(material.save_filename, bbox_2D, config_setting["blender_env"]["resolution"])
+                    utils.write_yolo_label(material.save_filename, bbox_2D, config_setting["blender_env"]["resolution"], category_ls.index(material.category))
                 else:
                     obj_exist_in_img = False
                     utils.delete_img(material.save_filename)
             elif config_setting["mode_config"]["mode"]=="Segmentation":
                 max_contour, polygon = bbox.get_segmentation(material.save_filename)
                 if polygon:
-                    utils.write_polygon_label(material.save_filename, polygon)
+                    utils.write_polygon_label(material.save_filename, polygon, category_ls.index(material.category))
                 else:
                     obj_exist_in_img = False
                     utils.delete_img(material.save_filename)
@@ -95,7 +95,8 @@ if __name__ == '__main__':
             img_size=config_setting["blender_env"]["resolution"], 
             min=config_setting["mode_config"]["multi_obj"]["min_obj"],
             max=config_setting["mode_config"]["multi_obj"]["max_obj"], 
-            bg_img=config_setting["file_env"]["bg_path"] if config_setting["mode_config"]["with_bg"] else None)
+            bg_img=config_setting["file_env"]["bg_path"] if config_setting["mode_config"]["with_bg"] else None,
+            category_ls=category_ls)
 
     display.generate_frame(text="Done !")
     event.set()

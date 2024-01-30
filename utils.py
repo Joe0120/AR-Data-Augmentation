@@ -34,35 +34,17 @@ def delete_img(filename):
     os.remove(filename+'.png')
     return
 
-def find_class_from_filename(filename):
-    file_name = os.path.splitext(os.path.basename(filename))[0]
-    first_part = file_name.split(' ')[0]
-
-    with open('config_setting.json','r') as config_file:
-        config_data = json.load(config_file)
-    # class_path = "class.txt" 
-    class_path = config_data.get('classes','class.txt')
-
-    with open(class_path, 'r') as f:
-        class_mapping = {class_name.strip(): index for index, class_name in enumerate(f.readlines())}
-        class_name = class_mapping.get(first_part, "None")
-        return class_name
-
-
-def write_yolo_label(filename, bbox_2D, img_size):
-    class_name = find_class_from_filename(filename)
-
-    # print(f"File: {filename}, Class Index: {class_name}")
+def write_yolo_label(filename, bbox_2D, img_size, cat_index):
     x = (bbox_2D[0][0] + bbox_2D[1][0]) / (2 * img_size[0])
     y = (bbox_2D[0][1] + bbox_2D[1][1]) / (2 * img_size[1])
     w = (bbox_2D[1][0] - bbox_2D[0][0]) / img_size[0]
     h = (bbox_2D[1][1] - bbox_2D[0][1]) / img_size[1]
-    content = f"{class_name} {x} {y} {w} {h}"
+    content = f"{cat_index} {x} {y} {w} {h}"
     write_file(filename, content)
     return
 
-def write_polygon_label(filename, polygon):
-    content = f"0{polygon}"
+def write_polygon_label(filename, polygon, cat_index):
+    content = f"{cat_index}{polygon}"
     write_file(filename, content)
     return
 
@@ -98,7 +80,7 @@ def fisheye_remove_edge(mask_filename:str, filename:str, img_size:list):
 
     cv2.imwrite(filename+'.png', render_image)
 
-def multi_bbox_2D(mask, img_size, cat_ls, class_mapping):
+def multi_bbox_2D(mask, img_size, cat_ls):
     bbox_ls = ''
     unique_values = np.unique(mask)
     if None in unique_values: return None
@@ -115,8 +97,7 @@ def multi_bbox_2D(mask, img_size, cat_ls, class_mapping):
         w = (bbox_2D[1][0] - bbox_2D[0][0]) / img_size[0]
         h = (bbox_2D[1][1] - bbox_2D[0][1]) / img_size[1]
 
-        cat_label = class_mapping.get(find_class_from_filename(cat_ls), "Unknown")
-        bbox_ls += f"{cat_label} {x} {y} {w} {h}\n"
+        bbox_ls += f"{cat_ls[val-1]} {x} {y} {w} {h}\n"
     return bbox_ls
 
 def multi_polygon(mask, target_size, cat_ls):
@@ -131,7 +112,7 @@ def multi_polygon(mask, target_size, cat_ls):
             max_contour = max(contours, key=cv2.contourArea)
             polygon = max_contour.squeeze().tolist()
             polygon = ''.join([f" {point[0]/target_size[0]} {point[1]/target_size[1]}" for point in polygon])
-            polygon_ls+=f"{cat_ls}{polygon}\n"
+            polygon_ls+=f"{cat_ls[val-1]}{polygon}\n"
     return polygon_ls
 
 def merge_mask(front_img_name:Union[str, np.ndarray], back_img_name:Union[str, np.ndarray]) -> np.ndarray:
@@ -162,7 +143,7 @@ def sort_position(img_ls:list) -> list:
             unique_img_ls.append(path)
     return unique_img_ls
 
-def merge_multi_obj(mode, save_file, img_size, min, max, bg_img):
+def merge_multi_obj(mode, save_file, img_size, min, max, bg_img, category_ls):
     img_ls = [file for file in glob.glob(save_file + r'/*.png') if 'fisheye_' not in file]
 
     for i in range(0, len(img_ls)//min*2):
@@ -171,29 +152,20 @@ def merge_multi_obj(mode, save_file, img_size, min, max, bg_img):
 
         cat_ls = []
         merge, mask= None, None
-        for idx in range(len(random_elements_ls) - 1):
-            print(random_elements_ls[idx])
-            
+        for idx in range(len(random_elements_ls) - 1):            
+            cat_pattern = r'[\\\/](\w+)\ \w+\ [\d+\-]'
             if not merge and not mask:
-                cat = re.search(r'[\\\/](\w+)\ \w+\ [\d+\-]', random_elements_ls[idx]).group(1)
                 merge = Image.open(random_elements_ls[idx])
                 mask = np.where(np.array(merge)[:, :, 3] != 0, 1, 0)
-                cat_ls.append(cat)
-                print("-----------------")
-                print("append", cat)
+                cat = re.search(cat_pattern, random_elements_ls[idx]).group(1)
+                cat_ls.append(category_ls.index(cat))
         
             new_merge_mask, back_area = merge_mask(mask, random_elements_ls[idx+1])
             if back_area>0.15:
-                cat = re.search(r'[\\\/](\w+)\ \w+\ [\d+\-]', random_elements_ls[idx+1]).group(1)
                 mask = new_merge_mask
                 merge = merge_img(merge, random_elements_ls[idx+1], img_size=img_size)
-                cat_ls.append(cat)
-                print("append", cat)
-                print("------------------")
-
-        print("==================")
-        print(cat_ls)
-        print("==================")
+                cat = re.search(cat_pattern, random_elements_ls[idx+1]).group(1)
+                cat_ls.append(category_ls.index(cat))
 
         if mode == '2D':
             label = multi_bbox_2D(mask, img_size, cat_ls)

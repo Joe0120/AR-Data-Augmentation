@@ -26,7 +26,7 @@ class Material:
             bpy.data.collections['fbx_col'].objects.link(obj)
             self.obj = bpy.data.objects[obj.name]
 
-        elif self.type=='blend' and any(mode in self.config_setting["mode_config"]["mode"] for mode in ["2D", "Seg"]):
+        elif self.type=='blend' and any(mode in self.config_setting["mode_config"]["mode"] for mode in ["2D", "Segmentation"]):
             blendFile = self.path
             with bpy.data.libraries.load(blendFile) as (data_from, data_to):
                 data_to.collections = data_from.collections
