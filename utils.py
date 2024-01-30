@@ -9,8 +9,11 @@ from Material import Material
 
 def get_category_ls(config_setting):
     class_path = config_setting["file_env"]["classes"]
-    with open(class_path, "r") as file:
-        category_ls = [line.strip() for line in file.readlines()]
+    if class_path and os.path.exists(class_path):
+        with open(class_path, "r") as file:
+            category_ls = [line.strip() for line in file.readlines()]
+    else:
+        category_ls = os.listdir('objects')
     return category_ls
 
 def get_material_ls(config_setting, category_ls):
