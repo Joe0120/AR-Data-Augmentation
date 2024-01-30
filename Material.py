@@ -43,10 +43,44 @@ class Material:
             link = False # append, set to true to keep the link to the original file
             with bpy.data.libraries.load(blendFile, link=link) as (data_from, data_to):
                 data_to.collections = data_from.collections
-            for coll in data_to.collections:
-                if coll is not None: bpy.data.collections['blend_col'].children.link(coll)
-                self.obj = bpy.data.objects[data_to.collections[0].name]
+            if data_to.collections[0] is not None: bpy.data.collections['blend_col'].children.link(data_to.collections[0])
+            obj = bpy.data.objects[data_to.collections[0].objects[-1].name]
+            while obj.parent: obj = obj.parent
+            self.obj = obj
+            self.dimension = self.get_material_info()
 
+    def get_bbox_3D(self):
+        def np_matmul_coords(coords, matrix, space=None):
+            M = (space @ matrix @ space.inverted()
+            if space else matrix).transposed()
+            ones = np.ones((coords.shape[0], 1))
+            coords4d = np.hstack((coords, ones))
+            return np.dot(coords4d, M)[:,:-1]
+
+        obj_coords_ls = []
+        for o in bpy.context.scene.objects:
+            if o.type != 'MESH': continue
+            obj_coords = np_matmul_coords(np.array(o.bound_box), o.matrix_world.copy())
+            if np.all(np.logical_or(obj_coords == 1, obj_coords == -1)): continue
+            obj_coords_ls.append(obj_coords)
+        coords = np.vstack(tuple(obj_coords_ls))
+
+        bfl = coords.min(axis=0)
+        tbr = coords.max(axis=0)
+        G  = np.array((bfl, tbr)).T
+        bbc = [i for i in itertools.product(*G)]
+        return np.array(bbc)
+
+    def get_material_info(self):
+        coordinates = self.get_bbox_3D()
+        min_x, min_y, min_z = coordinates.min(axis=0)
+        max_x, max_y, max_z = coordinates.max(axis=0)
+        length = round(max_y - min_y, 6)
+        width = round(max_x - min_x, 6)
+        # height = round(max_z - min_z, 6)
+        height = round(max_z, 6)
+        return [width, length, height]
+    
     def set_args(self, args):
         self.args = args
 

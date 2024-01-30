@@ -77,7 +77,7 @@ if __name__ == '__main__':
             elif config_setting["mode_config"]["mode"]=="KITTI_3D":
                 bbox_2D = bbox.get_bbox_2D(material.save_filename)
                 bbox_3D = bbox.get_bbox_3D()
-                if len(bbox_2D) and len(bbox_3D):
+                if bbox_2D and len(bbox_3D):
                     bbox_3D_loc = bbox.get_bbox3D_loc(bbox_3D, blender_camera.location["z"])
                     bev_alpha = bbox.get_bev_alpha(material.args)
                     bev_rotation_y = bbox.get_bev_rotation_y(material.args["rotation_z"])
