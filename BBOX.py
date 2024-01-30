@@ -74,5 +74,6 @@ class BBOX:
     def get_bev_alpha(self, material_args):
         return math.atan2(material_args["location_x"], material_args["location_y"])
 
-    def get_bev_rotation_y(self, radian_angle):
+    def get_bev_rotation_y(self, angle):
+        radian_angle = math.radians(angle)
         return math.atan2(-math.sin(radian_angle), math.cos(radian_angle))
