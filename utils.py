@@ -139,7 +139,6 @@ def multi_KITTI_3D(img_ls):
         with open(label_path, "r") as file:
             label = file.readlines()[0]
             label_ls += f"{label}\n"
-            print(label_path, label)
     return label_ls
 
 def merge_mask(front_img_name:Union[str, np.ndarray], back_img_name:Union[str, np.ndarray]) -> np.ndarray:
