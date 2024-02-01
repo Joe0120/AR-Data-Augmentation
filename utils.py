@@ -136,6 +136,7 @@ def multi_KITTI_3D(img_ls):
     label_ls = ''
     for path in img_ls:
         label_path = path.replace("image_2", "label_2").replace(".png", ".txt")
+        if not os.path.exists(label_path): return
         with open(label_path, "r") as file:
             label = file.readlines()[0]
             label_ls += f"{label}\n"
@@ -183,7 +184,7 @@ def merge_multi_obj(mode, save_file, img_size, min, max, bg_img, category_ls, ki
         cat_ls, obj_img_ls = [], []
         merge, mask= None, None
         for idx in range(len(random_elements_ls) - 1):            
-            cat_pattern = r'[\\\/](\w+)\ \w+\ [\d+\-]'
+            cat_pattern = r'[\\\/](\w+)\ [\w\-\[\]]+\ [\d\-]+'
             if not merge and not mask:
                 merge = Image.open(random_elements_ls[idx])
                 mask = np.where(np.array(merge)[:, :, 3] != 0, 1, 0)
