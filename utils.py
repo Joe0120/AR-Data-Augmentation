@@ -183,7 +183,7 @@ def merge_multi_obj(mode, save_file, img_size, min, max, bg_img, category_ls, ki
 
         cat_ls, obj_img_ls = [], []
         merge, mask= None, None
-        for idx in range(len(random_elements_ls) - 1):            
+        for idx in range(len(random_elements_ls) - 1):
             cat_pattern = r'[\\\/](\w+)\ [\w\-\[\]]+\ [\d\-]+'
             if not merge and not mask:
                 merge = Image.open(random_elements_ls[idx])
@@ -211,6 +211,7 @@ def merge_multi_obj(mode, save_file, img_size, min, max, bg_img, category_ls, ki
             if bg_img: merge = merge_img(merge, bg_img, img_size=img_size)
 
             if mode == 'KITTI_3D':
+                print(f'{save_file}/multi_obj/image_2/{cnt:0>6}')
                 merge.save(f'{save_file}/multi_obj/image_2/{cnt:0>6}.png')
                 with open(f'{save_file}/multi_obj/label_2/{cnt:0>6}.txt', 'w') as f: f.write(label)
                 write_kitti_calib(f'{save_file}/multi_obj/calib/{cnt:0>6}', kitti_calib)
