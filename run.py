@@ -1,9 +1,17 @@
 import os, sys, json, datetime
 from PIL import Image
 
-filename = sys.argv[1:][0]
-filename = filename if '.json' in filename else f'{filename}.json'
-with open(f"config/{filename}", encoding="utf-8") as json_file:
+args = sys.argv[1:][0] if len(sys.argv) > 1 else "config_setting"
+filename = args if '.json' in args else f'{args}.json'
+if os.path.exists(f"config/{filename}"):
+    filename = f"config/{filename}"
+elif os.path.exists(f"{filename}"):
+    filename = f"{filename}"
+else:
+    print(f"Error: {args} not found")
+    sys.exit()
+
+with open(filename, encoding="utf-8") as json_file:
     cus_config = json.load(json_file)
 
 # print(cus_config["blender_env"])
